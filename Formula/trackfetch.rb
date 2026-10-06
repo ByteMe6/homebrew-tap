@@ -1,7 +1,6 @@
 class Trackfetch < Formula
   desc "Turn a text file of songs into tagged MP3s with Spotify metadata"
   homepage "https://github.com/ByteMe6/trackfetch"
-  version "2.0.0"
   license "GPL-3.0-or-later"
 
   on_macos do

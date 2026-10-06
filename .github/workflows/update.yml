@@ -23,7 +23,7 @@ jobs:
         run: |
           latest=$(gh api repos/ByteMe6/trackfetch/releases/latest --jq .tag_name)
           version=${latest#v}
-          current=$(sed -n 's/^  version "\(.*\)"$/\1/p' Formula/trackfetch.rb)
+          current=$(sed -n 's|.*/releases/download/v\([^/]*\)/.*|\1|p' Formula/trackfetch.rb | head -n 1)
           echo "version=$version" >> "$GITHUB_OUTPUT"
           if [ "$version" = "$current" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -47,7 +47,6 @@ jobs:
           sums = {name: sha for sha, name in (line.split() for line in open("SHA256SUMS.txt") if line.strip())}
           formula = pathlib.Path("Formula/trackfetch.rb")
           text = formula.read_text()
-          text = re.sub(r'^  version ".*"$', f'  version "{version}"', text, flags=re.M)
 
           def bump(m):
               asset = m.group(2)
