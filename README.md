@@ -10,7 +10,7 @@ brew install ByteMe6/tap/trackfetch
 
 This also installs `deno`, `ffmpeg` and `yt-dlp`, which trackfetch needs at runtime. You still need Spotify API credentials; see [Spotify credentials](https://github.com/ByteMe6/trackfetch#spotify-credentials).
 
-Works on macOS (Apple Silicon and Intel) and Linux (x86_64 and ARM64).
+Works on macOS (Apple Silicon and Intel) and Linux (x86_64 and ARM64). On Intel Macs, Homebrew no longer provides prebuilt `deno`, `ffmpeg` and `yt-dlp`, so the first install compiles them from source and takes a long time.
 
 ## Updates
 

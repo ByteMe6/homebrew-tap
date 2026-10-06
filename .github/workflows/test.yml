@@ -27,7 +27,14 @@ jobs:
     steps:
       - uses: Homebrew/actions/setup-homebrew@main
       - name: Install
-        run: brew install ByteMe6/tap/trackfetch
+        # Homebrew no longer ships Intel macOS bottles for deno, ffmpeg and yt-dlp,
+        # so building them from source would take hours. Test the formula's own binary there.
+        run: |
+          if [ "${{ matrix.os }}" = "macos-15-intel" ]; then
+            brew install --ignore-dependencies ByteMe6/tap/trackfetch
+          else
+            brew install ByteMe6/tap/trackfetch
+          fi
       - name: brew test
         run: brew test ByteMe6/tap/trackfetch
       - name: Run
