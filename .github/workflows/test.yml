@@ -36,6 +36,8 @@ jobs:
             brew install ByteMe6/tap/trackfetch
           fi
       - name: brew test
+        # brew test refuses to run without the dependencies skipped above.
+        if: matrix.os != 'macos-15-intel'
         run: brew test ByteMe6/tap/trackfetch
       - name: Run
-        run: trackfetch --help
+        run: 'trackfetch --help | grep "usage: trackfetch"'
