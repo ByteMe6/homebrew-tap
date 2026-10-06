@@ -1,0 +1,34 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Homebrew/actions/setup-homebrew@main
+      - name: Audit
+        run: brew audit --strict --online ByteMe6/tap/trackfetch
+
+  install:
+    name: install (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, macos-15-intel, ubuntu-latest, ubuntu-24.04-arm]
+    steps:
+      - uses: Homebrew/actions/setup-homebrew@main
+      - name: Install
+        run: brew install ByteMe6/tap/trackfetch
+      - name: brew test
+        run: brew test ByteMe6/tap/trackfetch
+      - name: Run
+        run: trackfetch --help

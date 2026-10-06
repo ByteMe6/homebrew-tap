@@ -1,0 +1,82 @@
+name: Update formula
+
+# Bumps Formula/trackfetch.rb when ByteMe6/trackfetch publishes a new release.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Compare with the latest release
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest=$(gh api repos/ByteMe6/trackfetch/releases/latest --jq .tag_name)
+          version=${latest#v}
+          current=$(sed -n 's/^  version "\(.*\)"$/\1/p' Formula/trackfetch.rb)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$version" = "$current" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Formula is already at $current"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Updating formula from $current to $version"
+          fi
+
+      - name: Rewrite the formula
+        if: steps.check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.check.outputs.version }}
+        run: |
+          gh release download "v$VERSION" -R ByteMe6/trackfetch -p SHA256SUMS.txt
+          python3 - <<'PY'
+          import os, pathlib, re
+
+          version = os.environ["VERSION"]
+          sums = {name: sha for sha, name in (line.split() for line in open("SHA256SUMS.txt") if line.strip())}
+          formula = pathlib.Path("Formula/trackfetch.rb")
+          text = formula.read_text()
+          text = re.sub(r'^  version ".*"$', f'  version "{version}"', text, flags=re.M)
+
+          def bump(m):
+              asset = m.group(2)
+              return f'{m.group(1)}v{version}/{asset}"\n{m.group(3)}sha256 "{sums[asset]}"'
+
+          text, count = re.subn(
+              r'(url "https://github\.com/ByteMe6/trackfetch/releases/download/)v[^/]+/([^"]+)"\n(\s+)sha256 "[0-9a-f]+"',
+              bump,
+              text,
+          )
+          assert count == 4, f"expected 4 url/sha256 pairs, rewrote {count}"
+          formula.write_text(text)
+          PY
+          rm SHA256SUMS.txt
+          git diff
+
+      - name: Commit and push
+        if: steps.check.outputs.changed == 'true'
+        env:
+          VERSION: ${{ steps.check.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "trackfetch $VERSION"
+          git push
+
+      - name: Test the new formula
+        if: steps.check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Pushes made with GITHUB_TOKEN don't trigger other workflows, so start the tests explicitly.
+        run: gh workflow run test.yml --ref main
