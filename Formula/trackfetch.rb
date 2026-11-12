@@ -89,9 +89,11 @@ class Trackfetch < Formula
         libexec.install "deno"
       end
 
-      # Apple Silicon only runs signed code, and the upstream builds are not signed.
+      # Apple Silicon only runs signed code and the upstream builds are not
+      # signed. libexec files are installed read-only, so unlock them first.
       if Hardware::CPU.arm?
         [libexec/"trackfetch", libexec/"yt-dlp", libexec/"deno", libexec/"ffmpeg"].each do |binary|
+          binary.chmod 0755
           system "codesign", "--force", "--sign", "-", binary
         end
       end

@@ -15,8 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: Homebrew/actions/setup-homebrew@main
+      - name: Tap this checkout
+        run: brew tap --force ByteMe6/tap "file://$GITHUB_WORKSPACE"
       - name: Audit
-        run: brew audit --strict --online ./Formula/trackfetch.rb
+        run: brew audit --strict --online ByteMe6/tap/trackfetch
 
   install:
     name: install (${{ matrix.os }})
@@ -28,12 +30,15 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: Homebrew/actions/setup-homebrew@main
+      - name: Tap this checkout
+        # Tests the formula from this checkout, so a pull request is tested
+        # before it lands instead of the copy already in the tap.
+        run: brew tap --force ByteMe6/tap "file://$GITHUB_WORKSPACE"
       - name: Install
-        # The formula in this checkout, not the copy in the tap, so a PR is
-        # tested before it lands. Nothing is compiled on macOS: ffmpeg, yt-dlp
-        # and deno come from the prebuilt binaries the formula bundles.
-        run: brew install --build-from-source ./Formula/trackfetch.rb
+        # Nothing is compiled on macOS: ffmpeg, yt-dlp and deno come from the
+        # prebuilt binaries the formula bundles.
+        run: brew install --build-from-source ByteMe6/tap/trackfetch
       - name: brew test
-        run: brew test trackfetch
+        run: brew test ByteMe6/tap/trackfetch
       - name: Run
         run: 'trackfetch --help | grep "usage: trackfetch"'
