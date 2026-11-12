@@ -43,10 +43,17 @@ jobs:
           rm -rf "$taps/homebrew-tap"
           ln -s "$GITHUB_WORKSPACE" "$taps/homebrew-tap"
       - name: Install
-        # Nothing is compiled on macOS: ffmpeg, yt-dlp and deno come from the
-        # prebuilt binaries the formula bundles.
-        run: brew install --build-from-source ByteMe6/tap/trackfetch
+        # Nothing is compiled on macOS: ffmpeg comes prebuilt from the formula.
+        # Intel macOS has no bottles for yt-dlp and deno, so they are skipped
+        # there instead of being built from source for half an hour.
+        run: |
+          if [ "${{ matrix.os }}" = "macos-15-intel" ]; then
+            brew install --ignore-dependencies ByteMe6/tap/trackfetch
+          else
+            brew install --build-from-source ByteMe6/tap/trackfetch
+          fi
       - name: brew test
+        if: matrix.os != 'macos-15-intel'
         run: brew test ByteMe6/tap/trackfetch
       - name: Run
         run: 'trackfetch --help | grep "usage: trackfetch"'
