@@ -8,12 +8,13 @@ Homebrew tap for [trackfetch](https://github.com/ByteMe6/trackfetch).
 brew install ByteMe6/tap/trackfetch
 ```
 
-`brew install` only downloads files, it never compiles anything.
+`brew install` downloads prebuilt files: trackfetch itself is never compiled, and
+on macOS neither is `ffmpeg`.
 
 - **macOS** (Apple Silicon and Intel): the formula installs the prebuilt
-  `trackfetch` binary plus prebuilt `yt-dlp`, `ffmpeg` and `deno` inside the
-  formula. You don't need them in your `PATH`, and there is no source build even
-  on macOS versions Homebrew has no bottles for.
+  `trackfetch` binary, and `ffmpeg` comes prebuilt inside the formula too, so it
+  is never compiled — even on macOS versions and Intel Macs where Homebrew has
+  no `ffmpeg` bottle. `yt-dlp` and `deno` are installed by Homebrew as usual.
 - **Linux**: `trackfetch` comes prebuilt and `yt-dlp`, `ffmpeg` and `deno` are
   installed from Homebrew.
 
@@ -25,8 +26,7 @@ You'll also need Spotify API keys, [here's how to get them](https://github.com/B
 brew upgrade trackfetch
 ```
 
-This also refreshes the bundled `yt-dlp`, `ffmpeg` and `deno`. New releases land
-here within a day.
+This also refreshes the bundled `ffmpeg`. New releases land here within a day.
 
 ## Issues
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Bump Formula/trackfetch.rb to the latest trackfetch release and the latest
-prebuilt ffmpeg, yt-dlp and deno binaries. Run from the repository root.
+prebuilt ffmpeg. Run from the repository root.
 
     scripts/update_formula.py            # rewrite the formula in place
     GITHUB_TOKEN=... scripts/update_formula.py
@@ -18,8 +18,6 @@ FORMULA = pathlib.Path("Formula/trackfetch.rb")
 
 # repository -> asset names the formula pins
 DEPS = {
-    "yt-dlp/yt-dlp": ["yt-dlp_macos"],
-    "denoland/deno": ["deno-aarch64-apple-darwin.zip", "deno-x86_64-apple-darwin.zip"],
     "eugeneware/ffmpeg-static": ["ffmpeg-darwin-arm64.gz", "ffmpeg-darwin-x64.gz"],
 }
 
