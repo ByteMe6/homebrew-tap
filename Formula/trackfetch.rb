@@ -69,6 +69,8 @@ class Trackfetch < Formula
   def install
     libexec.install Dir["trackfetch-*"].first => "trackfetch"
 
+    binaries = [libexec/"trackfetch"]
+
     if OS.mac?
       resource("yt-dlp").stage do
         libexec.install "yt-dlp_macos" => "yt-dlp"
@@ -89,14 +91,15 @@ class Trackfetch < Formula
         libexec.install "deno"
       end
 
-      # Apple Silicon only runs signed code and the upstream builds are not
-      # signed. libexec files are installed read-only, so unlock them first.
-      if Hardware::CPU.arm?
-        [libexec/"trackfetch", libexec/"yt-dlp", libexec/"deno", libexec/"ffmpeg"].each do |binary|
-          binary.chmod 0755
-          system "codesign", "--force", "--sign", "-", binary
-        end
-      end
+      binaries += [libexec/"yt-dlp", libexec/"ffmpeg", libexec/"deno"]
+    end
+
+    binaries.each do |binary|
+      # Downloads do not keep the executable bit.
+      binary.chmod 0755
+
+      # Apple Silicon only runs signed code and the upstream builds are not signed.
+      system "codesign", "--force", "--sign", "-", binary if OS.mac? && Hardware::CPU.arm?
     end
 
     # trackfetch runs yt-dlp, ffmpeg and deno from PATH. The wrapper puts the
