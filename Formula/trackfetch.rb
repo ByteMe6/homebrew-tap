@@ -130,7 +130,7 @@ class Trackfetch < Formula
     if OS.mac?
       assert_match "ffmpeg version", shell_output("#{libexec}/ffmpeg -version")
       assert_match "deno", shell_output("#{libexec}/deno --version")
-      assert_match "yt-dlp", shell_output("#{libexec}/yt-dlp --version")
+      assert_match(/\d{4}\.\d{2}\.\d{2}/, shell_output("#{libexec}/yt-dlp --version"))
     end
   end
 end
