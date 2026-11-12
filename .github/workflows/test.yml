@@ -16,7 +16,11 @@ jobs:
       - uses: actions/checkout@v5
       - uses: Homebrew/actions/setup-homebrew@main
       - name: Tap this checkout
-        run: brew tap --force ByteMe6/tap "file://$GITHUB_WORKSPACE"
+        run: |
+          taps="$(brew --repository)/Library/Taps/byteme"
+          mkdir -p "$taps"
+          rm -rf "$taps/homebrew-tap"
+          ln -s "$GITHUB_WORKSPACE" "$taps/homebrew-tap"
       - name: Audit
         run: brew audit --strict --online ByteMe6/tap/trackfetch
 
@@ -33,7 +37,11 @@ jobs:
       - name: Tap this checkout
         # Tests the formula from this checkout, so a pull request is tested
         # before it lands instead of the copy already in the tap.
-        run: brew tap --force ByteMe6/tap "file://$GITHUB_WORKSPACE"
+        run: |
+          taps="$(brew --repository)/Library/Taps/byteme"
+          mkdir -p "$taps"
+          rm -rf "$taps/homebrew-tap"
+          ln -s "$GITHUB_WORKSPACE" "$taps/homebrew-tap"
       - name: Install
         # Nothing is compiled on macOS: ffmpeg, yt-dlp and deno come from the
         # prebuilt binaries the formula bundles.
