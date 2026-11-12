@@ -13,7 +13,14 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v5
       - uses: Homebrew/actions/setup-homebrew@main
+      - name: Tap this checkout
+        run: |
+          taps="$(brew --repository)/Library/Taps/byteme"
+          mkdir -p "$taps"
+          rm -rf "$taps/homebrew-tap"
+          ln -s "$GITHUB_WORKSPACE" "$taps/homebrew-tap"
       - name: Audit
         run: brew audit --strict --online ByteMe6/tap/trackfetch
 
@@ -25,19 +32,21 @@ jobs:
       matrix:
         os: [macos-latest, macos-15-intel, ubuntu-latest, ubuntu-24.04-arm]
     steps:
+      - uses: actions/checkout@v5
       - uses: Homebrew/actions/setup-homebrew@main
-      - name: Install
-        # Homebrew no longer ships Intel macOS bottles for deno, ffmpeg and yt-dlp,
-        # so building them from source would take hours. Test the formula's own binary there.
+      - name: Tap this checkout
+        # Tests the formula from this checkout, so a pull request is tested
+        # before it lands instead of the copy already in the tap.
         run: |
-          if [ "${{ matrix.os }}" = "macos-15-intel" ]; then
-            brew install --ignore-dependencies ByteMe6/tap/trackfetch
-          else
-            brew install ByteMe6/tap/trackfetch
-          fi
+          taps="$(brew --repository)/Library/Taps/byteme"
+          mkdir -p "$taps"
+          rm -rf "$taps/homebrew-tap"
+          ln -s "$GITHUB_WORKSPACE" "$taps/homebrew-tap"
+      - name: Install
+        # Nothing is compiled on macOS: ffmpeg, yt-dlp and deno come from the
+        # prebuilt binaries the formula bundles.
+        run: brew install --build-from-source ByteMe6/tap/trackfetch
       - name: brew test
-        # brew test refuses to run without the dependencies skipped above.
-        if: matrix.os != 'macos-15-intel'
         run: brew test ByteMe6/tap/trackfetch
       - name: Run
         run: 'trackfetch --help | grep "usage: trackfetch"'
