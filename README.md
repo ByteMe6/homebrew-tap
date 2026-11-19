@@ -18,6 +18,9 @@ on macOS neither is `ffmpeg`.
 - **Linux**: `trackfetch` comes prebuilt and `yt-dlp`, `ffmpeg` and `deno` are
   installed from Homebrew.
 
+`pillow` is installed as a dependency so the Python image library used for
+cover-art resizing is always present.
+
 You'll also need Spotify API keys, [here's how to get them](https://github.com/ByteMe6/trackfetch#spotify-credentials).
 
 ## Update

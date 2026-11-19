@@ -30,6 +30,7 @@ class Trackfetch < Formula
   end
 
   depends_on "deno"
+  depends_on "pillow"
   depends_on "yt-dlp"
 
   # ffmpeg is the formula Homebrew most often has to build from source, and a
